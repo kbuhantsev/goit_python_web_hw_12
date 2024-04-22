@@ -36,9 +36,32 @@ async def create_access_token(data: dict, expires_delta: Optional[float] = None)
         expire = datetime.utcnow() + timedelta(seconds=expires_delta)
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
+    to_encode.update({"iat": datetime.utcnow(), "exp": expire, "scope": "access_token"})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+# define a function to generate a new refresh token
+async def create_refresh_token(data: dict, expires_delta: Optional[float] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + timedelta(seconds=expires_delta)
+    else:
+        expire = datetime.utcnow() + timedelta(days=7)
+    to_encode.update({"iat": datetime.utcnow(), "exp": expire, "scope": "refresh_token"})
+    encoded_refresh_token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_refresh_token
+
+
+async def get_email_form_refresh_token(refresh_token: str):
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload['scope'] == 'refresh_token':
+            email = payload['sub']
+            return email
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid scope for token')
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate credentials')
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
@@ -51,15 +74,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
     try:
         # Decode JWT
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload["sub"]
-        if email is None:
+        if payload['scope'] == 'access_token':
+            email = payload["sub"]
+            if email is None:
+                raise credentials_exception
+        else:
             raise credentials_exception
     except JWTError as e:
         raise credentials_exception
 
-    query = select(User).where(User.email == email)
-    res = await session.execute(query)
-    user = res.scalars().first()
+    req = select(User).filter(User.email == email)
+    user = await session.execute(req)
+    user = user.scalars().first()
     if user is None:
         raise credentials_exception
     return user

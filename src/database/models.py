@@ -17,6 +17,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     email: Mapped[str] = mapped_column(String(150), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
+    refresh_token: Mapped[str] = mapped_column(String(255), nullable=True, unique=True)
     # Alchemy
     # contacts: Mapped[list["Contact"]] = relationship("Contact", back_populates="user")
 
