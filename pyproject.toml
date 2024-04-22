@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "goit-python-web-hw-11"
+version = "0.1.0"
+description = ""
+authors = ["kbuhantsev <k.buhantsev@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.110.1"
+uvicorn = {extras = ["standard"], version = "^0.29.0"}
+pydantic = "^2.6.4"
+sqlalchemy = "^2.0.29"
+asyncpg = "^0.29.0"
+alembic = "^1.13.1"
+pydantic-settings = "^2.2.1"
+jupyter = "^1.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+faker = "^24.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
