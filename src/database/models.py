@@ -18,8 +18,6 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(150), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     refresh_token: Mapped[str] = mapped_column(String(255), nullable=True, unique=True)
-    # Alchemy
-    # contacts: Mapped[list["Contact"]] = relationship("Contact", back_populates="user")
 
     def __repr__(self):
         return f'User(name={self.name}, email={self.email})'
@@ -32,9 +30,11 @@ class Contact(Base):
     email: Mapped[str] = mapped_column(String(50), nullable=True)
     phone: Mapped[str] = mapped_column(String(50), nullable=True)
     date_of_birth: Mapped[Date] = mapped_column(Date)
-    user: Mapped[User] = mapped_column(
+    user_i: Mapped[User] = mapped_column(
         ForeignKey('users.id', ondelete='CASCADE', onupdate='CASCADE')
     )
+    # Alchemy
+    user: Mapped["Contact"] = relationship("Contact", backref="contacts")
 
     def __repr__(self):
         return f'Contact(name={self.name}, surname={self.surname}, email={self.email}, phone={self.phone})'

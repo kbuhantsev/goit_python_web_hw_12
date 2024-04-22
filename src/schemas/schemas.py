@@ -13,7 +13,6 @@ class ContactSchema(BaseModel):
 
 
 class ContactSchemaResponse(ContactSchema):
-
     class Config:
         from_attributes = True
 
