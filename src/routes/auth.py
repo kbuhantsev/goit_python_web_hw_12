@@ -4,7 +4,7 @@ from src.repository.users import get_user_by_email, create_user, update_token
 from src.schemas.schemas import UserSchema
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
 
-from src.database.db import get_session
+from src.database.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.services.auth import auth_service
@@ -19,7 +19,7 @@ async def root():
 
 
 @router.post("/signup")
-async def signup(body: UserSchema, db: AsyncSession = Depends(get_session)):
+async def signup(body: UserSchema, db: AsyncSession = Depends(get_db)):
     #
     exist_user = await get_user_by_email(body.email, db)
     if exist_user:
@@ -30,7 +30,7 @@ async def signup(body: UserSchema, db: AsyncSession = Depends(get_session)):
 
 
 @router.post("/login")
-async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_session)):
+async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     #
     user = await get_user_by_email(body.username, db)
     if user is None:
@@ -48,7 +48,7 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
 @router.get('/refresh_token')
 async def refresh_token(
         credentials: HTTPAuthorizationCredentials = Security(get_refresh_token),
-        db: AsyncSession = Depends(get_session)):
+        db: AsyncSession = Depends(get_db)):
     #
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)

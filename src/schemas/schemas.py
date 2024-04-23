@@ -11,9 +11,12 @@ class ContactSchema(BaseModel):
     phone: Optional[str] = Field(default=None)
     date_of_birth: Optional[date] = Field(default=None)
 
+    class ConfigDict:
+        from_attributes = True
+
 
 class ContactSchemaResponse(ContactSchema):
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -21,12 +24,23 @@ class UserLoginSchema(BaseModel):
     email: EmailStr
     password: str = Field(min_length=3)
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
 class UserSchema(UserLoginSchema):
-    username: str = Field(min_length=3, max_length=50)
+    name: str = Field(min_length=3, max_length=50)
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
+
+
+class UserResponseSchema(BaseModel):
+    user: UserSchema
+    detail: str = "User successfully created"
+
+
+class TokenModel(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"

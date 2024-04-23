@@ -17,6 +17,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     email: Mapped[str] = mapped_column(String(150), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
+    avatar: Mapped[str] = mapped_column(String(255), nullable=True)
     refresh_token: Mapped[str] = mapped_column(String(255), nullable=True, unique=True)
 
     def __repr__(self):
@@ -34,7 +35,7 @@ class Contact(Base):
         ForeignKey('users.id', ondelete='CASCADE', onupdate='CASCADE')
     )
     # Alchemy
-    user: Mapped["Contact"] = relationship("Contact", backref="contacts")
+    user: Mapped["Contact"] = relationship("User", backref="contacts")
 
     def __repr__(self):
         return f'Contact(name={self.name}, surname={self.surname}, email={self.email}, phone={self.phone})'

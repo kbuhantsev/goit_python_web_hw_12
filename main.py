@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
-from src.database.db import get_session
+from src.database.db import get_db
 
 from src.routes.contacts import router as contacts_router
 from src.routes.tests import router as tests_router
@@ -34,7 +34,7 @@ def root():
 
 
 @app.get("/api/healthchecker")
-async def healthchecker(db: AsyncSession = Depends(get_session)):
+async def healthchecker(db: AsyncSession = Depends(get_db)):
     try:
         # Make request
         result = await db.execute(text("SELECT 1"))
