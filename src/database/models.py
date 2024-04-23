@@ -31,11 +31,11 @@ class Contact(Base):
     email: Mapped[str] = mapped_column(String(50), nullable=True)
     phone: Mapped[str] = mapped_column(String(50), nullable=True)
     date_of_birth: Mapped[Date] = mapped_column(Date)
-    user_i: Mapped[User] = mapped_column(
+    user_id: Mapped[User] = mapped_column(
         ForeignKey('users.id', ondelete='CASCADE', onupdate='CASCADE')
     )
     # Alchemy
-    user: Mapped["Contact"] = relationship("User", backref="contacts")
+    user: Mapped["Contact"] = relationship("User", backref="contacts", lazy="selectin")
 
     def __repr__(self):
         return f'Contact(name={self.name}, surname={self.surname}, email={self.email}, phone={self.phone})'

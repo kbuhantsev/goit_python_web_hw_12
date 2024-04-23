@@ -23,7 +23,8 @@ async def create_user(body: UserSchema, db: AsyncSession = Depends(get_db)):
         avatar = g.get_image()
     except Exception as e:
         print(e)
-    new_user = User(**body.dict(), avatar=avatar)
+    new_user = User(**body.dict())
+    new_user.avatar = avatar
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)

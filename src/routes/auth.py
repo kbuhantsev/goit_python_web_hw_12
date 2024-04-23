@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Security
 from src.database.models import User
 from src.repository.users import get_user_by_email, create_user, update_token
-from src.schemas.schemas import UserSchema
+from src.schemas.schemas import UserSchema, TokenModel
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
 
 from src.database.db import get_db
@@ -18,18 +18,19 @@ async def root():
     return {"message": "root"}
 
 
-@router.post("/signup")
+@router.post("/signup", response_model=UserSchema)
 async def signup(body: UserSchema, db: AsyncSession = Depends(get_db)):
     #
     exist_user = await get_user_by_email(body.email, db)
     if exist_user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account already exists")
     #
+    body.password = auth_service.get_password_hash(body.password)
     new_user = await create_user(body, db)
-    return {"new_user": new_user.email}
+    return new_user
 
 
-@router.post("/login")
+@router.post("/login", response_model=TokenModel)
 async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     #
     user = await get_user_by_email(body.username, db)
@@ -45,7 +46,7 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
-@router.get('/refresh_token')
+@router.get('/refresh_token', response_model=TokenModel)
 async def refresh_token(
         credentials: HTTPAuthorizationCredentials = Security(get_refresh_token),
         db: AsyncSession = Depends(get_db)):

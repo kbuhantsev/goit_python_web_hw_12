@@ -30,6 +30,7 @@ class UserLoginSchema(BaseModel):
 
 class UserSchema(UserLoginSchema):
     name: str = Field(min_length=3, max_length=50)
+    avatar: Optional[str] = Field(default=None)
 
     class ConfigDict:
         from_attributes = True
